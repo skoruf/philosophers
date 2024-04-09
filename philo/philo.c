@@ -77,6 +77,25 @@ int	check_death(t_data *data)
 	return (0);
 }
 
+int	philo_sleep(t_philo *ph)
+{
+	print_msg(ph->data, ph->id, "is sleeping");
+	size_t test = get_time() - ph->t_last_meal;
+	if (test + ph->data->t_sleep >= ph->data->t_die)
+	{
+	
+
+		pthread_mutex_lock(&ph->data->dead_lock);
+		usleep((ph->data->t_die - test) * 1000);
+		ph->data->dead = 1;
+		pthread_mutex_unlock(&ph->data->dead_lock);
+		return (1);
+	
+	}
+	usleep(ph->data->t_sleep * 1000);
+	return (0);
+}
+
 void	*routine(void *philo)
 {
 	t_philo	*ph;
@@ -100,8 +119,8 @@ void	*routine(void *philo)
 			if (eat(ph, 2))
 				break ;
 		}
-		print_msg(ph->data, ph->id, "is sleeping");
-		usleep(ph->data->t_sleep * 1000);
+		if (philo_sleep(ph))
+			break ;
 		print_msg(ph->data, ph->id, "is thinking");
 		test++;
 	}
@@ -138,16 +157,16 @@ void	*lord_routine(void *data_p)
 	data = (t_data *)data_p;
 	//TESTING
 	//int test = 0;
-	while (!check_mate(data->philo, data)
-		&& (data->meals && data->n_philo > data->done_eating))
+	while (!check_mate(data->philo, data))
 	{
+		if (data->meals)
+		{
+			pthread_mutex_lock(&data->eat_lock);
+			if(data->n_philo == data->done_eating)
+				break ;
+			pthread_mutex_unlock(&data->eat_lock);
+		}
 		usleep(500);
-		//TESTING
-		//if (test > 5)
-		//	break ;
-		//test++;
-		//if (data->meals && check_if_full(data->philo, data))
-		//	break ;
 	}
 	return (NULL);
 }
