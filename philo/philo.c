@@ -11,189 +11,72 @@
 /* ************************************************************************** */
 
 #include "philo.h"
-/*
-size_t	get_t_ms()
-{
-}
-*/
 
-int	eat(t_philo *ph, int flag)
+int	check_death(t_data *data, int flag, int i)
 {
-	if (flag == 1)
+	if (!flag)
 	{
-		pthread_mutex_lock(ph->r_fork);
-		print_msg(ph->data, ph->id, "has taken a fork");
-		pthread_mutex_lock(ph->l_fork);
-		print_msg(ph->data, ph->id, "has taken a fork");
+		pthread_mutex_lock(&data->dead_lock);
+		if (data->dead)
+			return (pthread_mutex_unlock(&data->dead_lock), 1);
+		pthread_mutex_unlock(&data->dead_lock);
 	}
 	else
 	{
-		pthread_mutex_lock(ph->l_fork);
-		print_msg(ph->data, ph->id, "has taken a fork");
-		pthread_mutex_lock(ph->r_fork);
-		print_msg(ph->data, ph->id, "has taken a fork");
-	}
-	print_msg(ph->data, ph->id, "is eating");
-	ph->times_eaten++;
-	if (ph->data->meals && ph->times_eaten == ph->data->meals)
-	{
-		pthread_mutex_lock(&ph->data->eat_lock);
-		ph->data->done_eating++;
-		pthread_mutex_unlock(&ph->data->eat_lock);
-	}
-	//TESTING
-	size_t test = get_time() - ph->t_last_meal;
-	if (test + ph->data->t_eat >= ph->data->t_die)
-	{
-		if (ph->data->t_die < ph->data->t_eat)
+		pthread_mutex_lock(&data->philo[i].dead_lock);
+		if (data->philo[i].dead)
 		{
-			pthread_mutex_lock(&ph->data->dead_lock);
-			usleep((ph->data->t_die - test) * 1000);
-			ph->data->dead = 1;
-			pthread_mutex_unlock(&ph->data->dead_lock);
-		}
-		pthread_mutex_unlock(ph->r_fork);
-		pthread_mutex_unlock(ph->l_fork);
-		return (1);
-	}
-	usleep(ph->data->t_eat * 1000);
-	pthread_mutex_lock(&ph->eat_lock);
-	ph->t_last_meal = get_time();
-	pthread_mutex_unlock(&ph->eat_lock);
-	pthread_mutex_unlock(ph->r_fork);
-	pthread_mutex_unlock(ph->l_fork);
-	return (0);
-}
-
-int	check_death(t_data *data)
-{
-	pthread_mutex_lock(&data->dead_lock);
-	if (data->dead)
-	{
-		pthread_mutex_unlock(&data->dead_lock);
-		return (1);
-	}
-	pthread_mutex_unlock(&data->dead_lock);
-	return (0);
-}
-
-int	philo_sleep(t_philo *ph)
-{
-	print_msg(ph->data, ph->id, "is sleeping");
-	size_t test = get_time() - ph->t_last_meal;
-	if (test + ph->data->t_sleep >= ph->data->t_die)
-	{
-	
-
-		pthread_mutex_lock(&ph->data->dead_lock);
-		usleep((ph->data->t_die - test) * 1000);
-		ph->data->dead = 1;
-		pthread_mutex_unlock(&ph->data->dead_lock);
-		return (1);
-	
-	}
-	usleep(ph->data->t_sleep * 1000);
-	return (0);
-}
-
-void	*routine(void *philo)
-{
-	t_philo	*ph;
-
-	ph = (t_philo *) philo;
-
-	int test = 0;
-	//TESTING
-	while (!check_death(ph->data))
-	{
-		if( ph->data->meals &&
-			ph->data->done_eating == ph->data->n_philo)
-			break ;
-		if (ph->id % 2)
-		{
-			if (eat(ph, 1))
-				break ;
-		}
-		else
-		{
-			if (eat(ph, 2))
-				break ;
-		}
-		if (philo_sleep(ph))
-			break ;
-		print_msg(ph->data, ph->id, "is thinking");
-		test++;
-	}
-	return (NULL);
-}
-
-int	check_mate(t_philo *ph, t_data *data)
-{
-	int	i;
-	size_t	time;
-
-	i = 0;
-	time = get_time();
-	while (i < data->n_philo)
-	{
-		pthread_mutex_lock(&ph->eat_lock);
-		if (check_death(data) || time - ph[i].t_last_meal >= data->t_die)
-		{
-			data->dead = 1;
-			pthread_mutex_unlock(&ph->eat_lock);
-			print_msg(data, ph[i].id, "died");
+			pthread_mutex_unlock(&data->philo[i].dead_lock);
 			return (1);
 		}
-		pthread_mutex_unlock(&ph->eat_lock);
+		pthread_mutex_unlock(&data->philo[i].dead_lock);
+	}	
+	return (0);
+}
+
+void	set_dead(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->n_philo)
+	{
+		pthread_mutex_lock(&data->philo[i].dead_lock);
+			data->philo[i].dead = 1;
+		pthread_mutex_unlock(&data->philo[i].dead_lock);
 		i++;
 	}
-	return (0);
+}
+
+void	check_mate(t_data *data, int i)
+{
+	pthread_mutex_lock(&data->dead_lock);
+	data->dead = 1;
+	pthread_mutex_unlock(&data->dead_lock);
+	print_msg(data, data->philo[i].id, "died");
+	set_dead(data);
 }
 
 void	*lord_routine(void *data_p)
 {
+	int	i;
+	t_philo	*ph;
 	t_data	*data;
 
 	data = (t_data *)data_p;
-	//TESTING
-	//int test = 0;
-	while (!check_mate(data->philo, data))
+	ph = data->philo;
+	while (!check_meals(data))
 	{
-		if (data->meals)
+		i = 0;
+		while (i < data->n_philo)
 		{
-			pthread_mutex_lock(&data->eat_lock);
-			if(data->n_philo == data->done_eating)
-				break ;
-			pthread_mutex_unlock(&data->eat_lock);
+			pthread_mutex_lock(&ph->eat_lock);
+			if (get_time() - ph[i].t_last_meal > data->t_die)
+				return (check_mate(data, i), NULL);
+			pthread_mutex_unlock(&ph->eat_lock);
+			i++;
 		}
-		usleep(500);
+		usleep(666);
 	}
 	return (NULL);
-}
-
-int	init_thread(t_data *data)
-{
-	int	i;
-	pthread_t	overlord;
-
-	i = 0;
-	if (pthread_create(&overlord, NULL, &lord_routine, data))
-			return (1);
-	while (i < data->n_philo)
-	{
-		//on failure join those that were created
-		//then clean up and return
-		if (pthread_create(&data->philo[i].thr_p, NULL,
-			&routine, &data->philo[i]))
-			return (1);
-		i++;
-	}
-	i = 0;
-	while (i < data->n_philo)
-	{
-		if (pthread_join(data->philo[i].thr_p, NULL))
-			return (1);
-		i++;
-	}
-	return (0);
 }

@@ -11,14 +11,14 @@
 int	main(int argc, char **argv)
 {
 	t_data	data;
-(void)argv;
-(void)data;
-//WARNING: WERROR FLAG NOT SET!!!
+
 	if (argc != 5 && argc != 6)
-		return (printf("Error: number of args invalid\n"), 1);	
+		return (printf("Error: number of args invalid\n"), 1);
+	if (argv[5] && !ft_strncmp(argv[5], "0", 2))
+		return (0);
 	if (init_data(&data, argv, argc))
-		return (1);
+		return (printf("Error: init_data\n"), 1);
 	if (init_thread(&data))
-		return (free_data(&data), 1);
-	return (0);
+		return (printf("Error: init_thread\n"), clean_up(&data), 1);
+	return (clean_up(&data), 0);
 }

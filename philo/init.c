@@ -58,18 +58,18 @@ static int	compare_nrs(const char *s1, const char *s2)
 	return (ft_strncmp(s1, s2, ft_strlen(s1)));
 }
 
-int	check_overflow(size_t *args, char **argv, int argc)
+int	check_overflow(size_t *args, char **argv, int argc, int i)
 {
-	int	i;
 	int	j;
 	char	*n_a;
 
-	i = 1;
 	j = 0;
 	if (argc == 5)
 		args[4] = 0;
 	while (i < argc)
 		args[j++] = ft_atot(argv[i++]);
+	if (!args[0])
+		return (1);
 	i = 1;
 	j = 0;
 	while (i < argc)

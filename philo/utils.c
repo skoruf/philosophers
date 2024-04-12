@@ -2,23 +2,26 @@
 
 #include "philo.h"
 
-void	free_data(t_data *data)
-{
-	if (data->forks)
-		free(data->forks);
-	if (data->philo)
-		free(data->philo);
-}
-
 void	clean_up(t_data *data)
 {
 	int	i;
 
 	i = 0;
-	while (i < data->n_philo)
-		pthread_mutex_destroy(&data->forks[i++]);
-	pthread_mutex_destroy(&data->msg_lock);
-	pthread_mutex_destroy(&data->eat_lock);
+	if (data->forks)
+	{
+		while (i < data->n_philo)
+		{
+			pthread_mutex_destroy(&data->philo[i].eat_lock);
+			//check if deadlock is used
+			pthread_mutex_destroy(&data->philo[i].dead_lock);
+			pthread_mutex_destroy(&data->forks[i++]);
+		}
+		pthread_mutex_destroy(&data->msg_lock);
+		pthread_mutex_destroy(&data->meals_lock);
+		pthread_mutex_destroy(&data->dead_lock);
+		//check if deadlock2 is still used
+		pthread_mutex_destroy(&data->dead_lock2);
+	}
 	free_data(data);
 }
 
@@ -37,10 +40,8 @@ void	print_msg(t_data *data, int id, char *msg)
 	size_t	time;
 
 	pthread_mutex_lock(&data->msg_lock);
-	//get time missing
 	time = get_time() - data->t_start;
-	//if dead, print dead message, else
-	if (!check_death(data))
+	if (!check_death(data, 0, -1))
 		printf("%lu %d %s\n", time, id, msg);
 	else if (!ft_strncmp(msg, "died", 5))
 		printf("%lu %d %s\n", time, id, msg);
