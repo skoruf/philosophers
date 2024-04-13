@@ -70,13 +70,16 @@ void	*lord_routine(void *data_p)
 		i = 0;
 		while (i < data->n_philo)
 		{
-			pthread_mutex_lock(&ph->eat_lock);
+			pthread_mutex_lock(&ph[i].eat_lock);
 			if (get_time() - ph[i].t_last_meal > data->t_die)
+			{
+				pthread_mutex_unlock(&ph[i].eat_lock);
 				return (check_mate(data, i), NULL);
-			pthread_mutex_unlock(&ph->eat_lock);
+			}
+			pthread_mutex_unlock(&ph[i].eat_lock);
 			i++;
 		}
-		usleep(666);
+		usleep(42);
 	}
 	return (NULL);
 }

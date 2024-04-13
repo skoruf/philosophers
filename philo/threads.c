@@ -23,6 +23,7 @@ int	init_thread(t_data *data)
 	pthread_t	overlord;
 
 	i = 0;
+	data->t_start = get_time();
 	while (i < data->n_philo)
 	{
 		data->philo[i].t_last_meal = get_time();
@@ -31,7 +32,8 @@ int	init_thread(t_data *data)
 			return (join_threads(data, i, overlord, 0), 1);
 		i++;
 	}
-	data->t_start = get_time();
+	if (data->n_philo == 1)
+		return (join_threads(data, i - 1, overlord, 0), 0);
 	if (pthread_create(&overlord, NULL, &lord_routine, data))
 			return (join_threads(data, i, overlord, 0), 1);
 	join_threads(data, i - 1, overlord, 1);

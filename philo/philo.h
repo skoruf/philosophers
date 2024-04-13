@@ -32,7 +32,6 @@ typedef struct s_data
 	pthread_mutex_t	meals_lock;
 	pthread_mutex_t	msg_lock;
 	pthread_mutex_t	dead_lock;
-	pthread_mutex_t	dead_lock2;
 	pthread_mutex_t	*forks;
 	t_philo		*philo;
 }				t_data;
@@ -52,3 +51,5 @@ void	ft_usleep(size_t time);
 void	*routine(void *philo);
 void	*lord_routine(void *data_p);
 int	check_meals(t_data *data);
+void	nap(t_data *data);
+void	destroy_forks(t_data *data, int i);

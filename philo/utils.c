@@ -7,20 +7,21 @@ void	clean_up(t_data *data)
 	int	i;
 
 	i = 0;
+	pthread_mutex_destroy(&data->msg_lock);
+	pthread_mutex_lock(&data->meals_lock);
+	pthread_mutex_unlock(&data->meals_lock);
+	pthread_mutex_destroy(&data->meals_lock);
+	pthread_mutex_destroy(&data->dead_lock);
 	if (data->forks)
 	{
 		while (i < data->n_philo)
 		{
 			pthread_mutex_destroy(&data->philo[i].eat_lock);
-			//check if deadlock is used
+			pthread_mutex_lock(&data->philo[i].dead_lock);
+			pthread_mutex_unlock(&data->philo[i].dead_lock);
 			pthread_mutex_destroy(&data->philo[i].dead_lock);
 			pthread_mutex_destroy(&data->forks[i++]);
 		}
-		pthread_mutex_destroy(&data->msg_lock);
-		pthread_mutex_destroy(&data->meals_lock);
-		pthread_mutex_destroy(&data->dead_lock);
-		//check if deadlock2 is still used
-		pthread_mutex_destroy(&data->dead_lock2);
 	}
 	free_data(data);
 }

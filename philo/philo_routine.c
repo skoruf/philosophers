@@ -89,13 +89,15 @@ void	*routine(void *philo)
 		print_msg(ph->data, ph->id, "died");
 		return (NULL);
 	}
-	while (!check_death(ph->data, 1, ph->id - 1) && !check_meals(ph->data))
+	while (1)
 	{
 		eat(ph);
+		if (check_death(ph->data, 1, ph->id - 1)
+			|| check_meals(ph->data))
+			break ;
 		philo_sleep(ph);
 		print_msg(ph->data, ph->id, "is thinking");
-		if (ph->data->t_sleep <= ph->data->t_eat)
-			ft_usleep(ph->data->t_eat - ph->data->t_sleep + 2);
+		nap(ph->data);
 	}
 	return (NULL);
 }
