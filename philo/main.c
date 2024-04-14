@@ -1,10 +1,14 @@
-/*INCLUDE HEADER*/
-//Args: 
-	//number_of_philosophers
-	//time_to_die
-	//time_to_eat
-	//time_to_sleep
-	//number_of_times_each_philo_must_eat
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: cthaler <cthaler@student.42vienna.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/13 12:05:15 by cthaler           #+#    #+#             */
+/*   Updated: 2024/04/13 12:05:19 by cthaler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 

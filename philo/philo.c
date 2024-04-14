@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   philo.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cthaler <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: cthaler <cthaler@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/30 12:10:34 by cthaler           #+#    #+#             */
 /*   Updated: 2023/11/30 12:10:36 by cthaler          ###   ########.fr       */
@@ -30,11 +30,11 @@ int	check_death(t_data *data, int flag, int i)
 			return (1);
 		}
 		pthread_mutex_unlock(&data->philo[i].dead_lock);
-	}	
+	}
 	return (0);
 }
 
-void	set_dead(t_data *data)
+static void	set_dead(t_data *data)
 {
 	int	i;
 
@@ -42,13 +42,13 @@ void	set_dead(t_data *data)
 	while (i < data->n_philo)
 	{
 		pthread_mutex_lock(&data->philo[i].dead_lock);
-			data->philo[i].dead = 1;
+		data->philo[i].dead = 1;
 		pthread_mutex_unlock(&data->philo[i].dead_lock);
 		i++;
 	}
 }
 
-void	check_mate(t_data *data, int i)
+static void	check_mate(t_data *data, int i)
 {
 	pthread_mutex_lock(&data->dead_lock);
 	data->dead = 1;
@@ -59,7 +59,7 @@ void	check_mate(t_data *data, int i)
 
 void	*lord_routine(void *data_p)
 {
-	int	i;
+	int		i;
 	t_philo	*ph;
 	t_data	*data;
 

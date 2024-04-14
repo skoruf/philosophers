@@ -1,4 +1,14 @@
-/*HEADER*/
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils2.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: cthaler <cthaler@student.42vienna.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/13 12:05:15 by cthaler           #+#    #+#             */
+/*   Updated: 2024/04/13 12:05:19 by cthaler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
@@ -22,14 +32,15 @@ void	free_data(t_data *data)
 void	nap(t_data *data)
 {
 	if (data->n_philo > 20 && data->t_sleep <= data->t_eat)
-			ft_usleep(data->t_eat - data->t_sleep
-				+ data->t_eat / 10);
-		else
-			ft_usleep(2);
+		ft_usleep(data->t_eat - data->t_sleep
+			+ data->t_eat / 10);
+	else
+		ft_usleep(2);
 }
 
 void	destroy_forks(t_data *data, int i)
 {
 	while (i >= 0)
 		pthread_mutex_destroy(&data->forks[i--]);
+	free_data(data);
 }

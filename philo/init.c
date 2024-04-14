@@ -1,4 +1,14 @@
-/*HEADER*/
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: cthaler <cthaler@student.42vienna.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/13 12:05:15 by cthaler           #+#    #+#             */
+/*   Updated: 2024/04/13 12:05:19 by cthaler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
@@ -12,7 +22,7 @@ static size_t	ft_atot(const char *nptr)
 	while (*nptr)
 	{
 		n *= 10;
-		n += (*nptr++ -48) %10;
+		n += (*nptr++ -48) % 10;
 	}
 	return (n);
 }
@@ -60,7 +70,7 @@ static int	compare_nrs(const char *s1, const char *s2)
 
 int	check_overflow(size_t *args, char **argv, int argc, int i)
 {
-	int	j;
+	int		j;
 	char	*n_a;
 
 	j = 0;

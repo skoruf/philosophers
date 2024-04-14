@@ -1,8 +1,18 @@
-/*HEADER*/
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_routine.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: cthaler <cthaler@student.42vienna.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/13 12:05:15 by cthaler           #+#    #+#             */
+/*   Updated: 2024/04/13 12:05:19 by cthaler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
-void	eat_option(t_philo *ph, int flag)
+static void	eat_option(t_philo *ph, int flag)
 {
 	if (flag)
 	{
@@ -17,12 +27,12 @@ void	eat_option(t_philo *ph, int flag)
 		print_msg(ph->data, ph->id, "has taken a fork");
 		pthread_mutex_lock(ph->r_fork);
 		print_msg(ph->data, ph->id, "has taken a fork");
-	}	
+	}
 	print_msg(ph->data, ph->id, "is eating");
 	ph->times_eaten++;
 }
 
-int	eat(t_philo *ph)
+static void	eat(t_philo *ph)
 {
 	eat_option(ph, ph->id % 2);
 	if (ph->data->meals && ph->times_eaten == ph->data->meals)
@@ -35,7 +45,7 @@ int	eat(t_philo *ph)
 	{
 		pthread_mutex_unlock(ph->r_fork);
 		pthread_mutex_unlock(ph->l_fork);
-		return (0);
+		return ;
 	}
 	pthread_mutex_lock(&ph->eat_lock);
 	ph->t_last_meal = get_time();
@@ -43,22 +53,20 @@ int	eat(t_philo *ph)
 	ft_usleep(ph->data->t_eat);
 	pthread_mutex_unlock(ph->r_fork);
 	pthread_mutex_unlock(ph->l_fork);
-	return (0);
 }
 
-int	philo_sleep(t_philo *ph)
+static void	philo_sleep(t_philo *ph)
 {
 	size_t	time_since;
-	
+
 	time_since = get_time() - ph->t_last_meal;
 	print_msg(ph->data, ph->id, "is sleeping");
 	if (time_since + ph->data->t_sleep > ph->data->t_die)
 	{
 		ft_usleep(ph->data->t_die - time_since);
-		return (0);
+		return ;
 	}
 	ft_usleep(ph->data->t_sleep);
-	return (0);
 }
 
 int	check_meals(t_data *data)
@@ -81,7 +89,6 @@ void	*routine(void *philo)
 	t_philo	*ph;
 
 	ph = (t_philo *) philo;
-
 	if (ph->data->n_philo == 1)
 	{
 		print_msg(ph->data, ph->id, "has taken a fork");

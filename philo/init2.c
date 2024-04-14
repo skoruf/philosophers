@@ -1,8 +1,18 @@
-/*HEADER*/
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init2.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: cthaler <cthaler@student.42vienna.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/13 12:05:15 by cthaler           #+#    #+#             */
+/*   Updated: 2024/04/13 12:05:19 by cthaler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
-void	destroy_failed(t_data *data, int i, int flag)
+static void	destroy_failed(t_data *data, int i, int flag)
 {
 	if (flag)
 		pthread_mutex_destroy(&data->philo[i + 1].eat_lock);
@@ -12,12 +22,14 @@ void	destroy_failed(t_data *data, int i, int flag)
 		pthread_mutex_destroy(&data->philo[i].dead_lock);
 		i--;
 	}
+	free_data(data);
 }
 
-int	init_philo(t_data *data)
+static int	init_philo(t_data *data)
 {
 	int	i;
 	int	last;
+
 	i = 0;
 	last = data->n_philo - 1;
 	while (i < data->n_philo)
@@ -39,7 +51,7 @@ int	init_philo(t_data *data)
 	return (0);
 }
 
-int	init_args(t_data *data, char **argv, int argc)
+static int	init_args(t_data *data, char **argv, int argc)
 {
 	size_t	*args;
 
@@ -48,7 +60,7 @@ int	init_args(t_data *data, char **argv, int argc)
 		return (1);
 	if (check_overflow(args, argv, argc, 1))
 		return (free(args), 1);
-	if (args[0] > INT_MAX)
+	if (args[0] > 200)
 		return (free(args), printf("Nr of philos too high\n"), 1);
 	data->n_philo = args[0];
 	data->t_die = args[1];
@@ -61,14 +73,15 @@ int	init_args(t_data *data, char **argv, int argc)
 int	init_data_mutexes(t_data *data, int i)
 {
 	if (pthread_mutex_init(&data->dead_lock, NULL))
-		return (1);
+		return (free_data(data), 1);
 	if (pthread_mutex_init(&data->msg_lock, NULL))
-		return (pthread_mutex_destroy(&data->dead_lock), 1);
+		return (free_data(data),
+			pthread_mutex_destroy(&data->dead_lock), 1);
 	if (pthread_mutex_init(&data->meals_lock, NULL))
 	{
 		pthread_mutex_destroy(&data->dead_lock);
 		pthread_mutex_destroy(&data->msg_lock);
-		return (1);
+		return (free_data(data), 1);
 	}
 	while (i < data->n_philo)
 	{

@@ -1,4 +1,14 @@
-/*HEADER*/
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: cthaler <cthaler@student.42vienna.com>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/13 12:05:15 by cthaler           #+#    #+#             */
+/*   Updated: 2024/04/13 12:05:19 by cthaler          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
@@ -29,7 +39,7 @@ void	clean_up(t_data *data)
 size_t	get_time(void)
 {
 	struct timeval	time_struct;
-	size_t	time;
+	size_t			time;
 
 	gettimeofday(&time_struct, NULL);
 	time = time_struct.tv_sec * 1000 + time_struct.tv_usec / 1000;
