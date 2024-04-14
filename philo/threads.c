@@ -40,7 +40,7 @@ int	init_thread(t_data *data)
 		data->philo[i].t_last_meal = get_time();
 		if (pthread_create(&data->philo[i].thr_p, NULL,
 				&routine, &data->philo[i]))
-			return (join_threads(data, i, overlord, 0), 1);
+			return (join_threads(data, i - 1, overlord, 0), 1);
 		i++;
 	}
 	if (data->n_philo == 1)
